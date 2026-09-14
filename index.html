@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#10180f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Waldhund" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="Waldhund — individueller Natur-Trainingsplan für deinen Hund. Offline, ohne Account." />
+  <title>Waldhund</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="assets/icon.jpg" />
+  <link rel="apple-touch-icon" href="assets/icon.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="splash">
+    <img src="assets/icon.jpg" alt="Waldhund" />
+    <p>WALDHUND</p>
+  </div>
+  <div id="onboard" class="onboard hidden"></div>
+  <div id="app" class="app hidden">
+    <header class="hero">
+      <img class="bg" src="assets/hero.jpg" alt="" />
+      <div class="veil"></div>
+      <div class="txt">
+        <div class="mark">Waldhund</div>
+        <h1 id="hero-name">Dein Hund</h1>
+        <p class="who" id="hero-sub"></p>
+      </div>
+    </header>
+    <div class="wrap">
+      <section id="p-heute" class="panel on"></section>
+      <section id="p-plan" class="panel"></section>
+      <section id="p-guide" class="panel"></section>
+      <section id="p-agent" class="panel"></section>
+      <section id="p-mehr" class="panel"></section>
+    </div>
+    <nav class="dock">
+      <button data-p="heute" class="on"><span>🌿</span>Heute</button>
+      <button data-p="plan"><span>🗓</span>Plan</button>
+      <button data-p="guide"><span>📘</span>Guide</button>
+      <button data-p="agent"><span>🦉</span>Moos</button>
+      <button data-p="mehr"><span>🐾</span>Hund</button>
+    </nav>
+  </div>
+  <script src="breeds.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
