@@ -1,5 +1,5 @@
-const CACHE = "waldhund-v3";
-const CORE = ["./index.html","./styles.css","./app.js","./engine.js","./breeds.js","./manifest.json"];
+const CACHE = "waldhund-v4";
+const CORE = ["./index.html","./styles.css","./app.js","./engine.js","./breeds.js","./manifest.json","./assets/icon.svg","./assets/hero.svg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
 });
