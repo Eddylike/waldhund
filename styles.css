@@ -6,11 +6,13 @@
   --ink: #1c140c;
   --ink2: #4a3b28;
   --line: rgba(184, 137, 58, .28);
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { min-height: 100%; }
 body {
-  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-family: var(--sans);
   background: var(--deep);
   color: var(--paper);
   line-height: 1.45;
@@ -51,7 +53,7 @@ body::before {
   color: var(--gold-lt); font-weight: 600;
 }
 .hero h1, .on-head h1 {
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--serif);
   font-weight: 600; line-height: 1.05;
 }
 .hero h1 { font-size: 36px; color: #fff8e8; }
@@ -62,24 +64,19 @@ body::before {
 .card {
   background: var(--paper);
   color: var(--ink);
-  border-radius: 18px;
-  padding: 14px 14px 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 10px 28px rgba(0,0,0,.28);
+  border-radius: 18px; padding: 14px 14px 16px;
+  margin-bottom: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.28);
 }
 .card h2, .card h3 {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  color: #3d2a14;
-  font-weight: 600;
+  font-family: var(--serif);
+  color: #3d2a14; font-weight: 600;
 }
 .card h2 { font-size: 26px; margin: 4px 0 4px; }
 .card h3 { font-size: 20px; margin: 6px 0 4px; }
 .card p { color: var(--ink2); }
 .muted { color: #6b5740; font-size: 13px; }
 .tag {
-  display: inline-block;
-  background: #2a3d2c;
-  color: var(--gold-lt);
+  display: inline-block; background: #2a3d2c; color: var(--gold-lt);
   font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
   border-radius: 6px; padding: 3px 8px; font-weight: 600;
 }
@@ -89,12 +86,8 @@ body::before {
 }
 .check-row input { width: 20px; height: 20px; accent-color: #3d6b48; }
 input, select, textarea {
-  width: 100%;
-  background: #fffaf0;
-  color: var(--ink);
-  border: 1.5px solid #d2bf94;
-  border-radius: 12px;
-  padding: 11px 12px;
+  width: 100%; background: #fffaf0; color: var(--ink);
+  border: 1.5px solid #d2bf94; border-radius: 12px; padding: 11px 12px;
 }
 textarea { min-height: 88px; resize: vertical; }
 label.lab { display: block; font-size: 12px; color: #3d6b48; font-weight: 600; margin: 10px 0 5px; }
@@ -135,8 +128,7 @@ nav.dock {
   position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
   width: min(430px, 100%);
   display: grid; grid-template-columns: repeat(5,1fr);
-  background: #10180f;
-  border-top: 1px solid var(--line);
+  background: #10180f; border-top: 1px solid var(--line);
   padding: 8px 6px calc(10px + env(safe-area-inset-bottom));
   z-index: 20;
 }
