@@ -13,9 +13,11 @@
     return String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
   function dog() { return state.dog || {}; }
+  function isPremium() { return !!(state.premium && state.premium.active); }
+  function setPremium(active) { state.premium = state.premium || {}; state.premium.active = active; save(); }
   function renderOnboard() {
     const breeds = (window.BREEDS || []).map(b => `<option value="${b.id}">${b.name}</option>`).join("");
-    document.querySelector("#onboard").innerHTML = `<div class="on-head"><img src="assets/hero.svg" alt="" /><div class="veil"></div><div class="txt"><div class="mark">Waldhund</div><h1>Wen nimmst du mit?</h1></div></div><div class="on-body"><div class="card"><label class="lab">Name</label><input id="o-name" maxlength="24" placeholder="z. B. Moos" /><label class="lab">Rasse</label><select id="o-breed">${breeds}</select><label class="lab">Alter</label><select id="o-age"><option value="welpe">Welpe (unter 1)</option><option value="jung">Junghund</option><option value="erwachsen" selected>Erwachsen</option><option value="senior">Senior</option></select><label class="lab">Woran wollt ihr arbeiten?</label><div class="chips" id="o-goals">${Object.entries(Engine.GOALS).map(([k, v]) => `<button type="button" class="chip" data-g="${k}">${v}</button>`).join("")}</div><p class="muted" style="margin:12px 0">Lokal im Browser. Kein Konto.</p><button class="btn full" id="o-go">Los</button></div></div>`;
+    document.querySelector("#onboard").innerHTML = `<div class="on-head"><img src="assets/hero.svg" alt="" /><div class="veil"></div><div class="txt"><div class="mark">Waldhund</div><h1>Wen nimmst du mit?</h1></div></div><div class="on-body"><div class="card"><label class="lab">Name</label><input id="o-name" maxlength="24" placeholder="z. B. Moos" /><label class="lab">Rasse</label><select id="o-breed">${breeds}</select><label class="lab">Alter</label><select id="o-age"><option value="welpe">Welpe (unter 1)</option><option value="jung">Junghund</option><option value="erwachsen" selected>Erwachsen</option><option value="senior">Senior</option></select><label class="lab">Woran wollt ihr arbeiten?</label><div class="chips" id="o-goals">${Object.entries(Engine.GOALS).map(([k, v]) => `<button type="button" class="chip" data-g="${k}">${v}</button>`).join("")}</div><p class="muted" style="margin:12px 0">Lokal im Browser. Kein Konto.</p><button class="btn full" id="o-go">Los</button></div></div>";
     const chosen = new Set(["alltag"]);
     document.querySelector("#o-goals").addEventListener("click", e => {
       const b = e.target.closest("[data-g]"); if (!b) return;
@@ -41,25 +43,45 @@
     const dayKey = t.day + "-" + (t.title || "");
     const done = !!(state.done && state.done[dayKey]);
     const b = Engine.breedById(d.breed);
-    document.querySelector("#p-heute").innerHTML = `<div class="card"><span class="tag">${t.day} · ${t.goal}</span><h2>${escape(t.title)}</h2><p>${escape(t.text)}</p><label class="check-row"><input type="checkbox" id="done" ${done ? "checked" : ""}/> Heute erledigt</label></div><div class="card"><h3>Zu ${escape(b.name)}</h3><p>${escape(b.note)}</p><div class="bars"><div class="bar">Energie <i><b style="width:${b.energy * 20}%"></b></i> ${b.energy}</div><div class="bar">Trieb <i><b style="width:${b.drive * 20}%"></b></i> ${b.drive}</div></div></div>`;
-    document.querySelector("#done").onchange = e => {
+    const freeItems = 3;
+    const plan = Engine.planFor(d);
+    const visible = isPremium() ? plan : plan.slice(0, freeItems);
+    document.querySelector("#p-heute").innerHTML = `<div class="card"><span class="tag">${t.day} · ${t.goal}</span><h2>${escape(t.title)}</h2><p>${escape(t.text)}</p><label class="check-row"><input type="checkbox" id="done" ${done ? "checked" : ""}/> Heute erledigt</label></div><div class="card"><h3>Zu ${escape(b.name)}</h3><p>${escape(b.note)}</p><div class="bars"><div class="bar">Energie <i><b style="width:${b.energy * 20}%"></b></i> ${b.energy}</div><div class="bar">Trieb <i><b style="width:${b.drive * 20}%"></b></i> ${b.drive}</div></div></div>${!isPremium() ? `<div class="card"><h3>Premium</h3><p class="muted">Voller Übungs-Katalog, Video-Lektionen und Trainer-Chat.</p><button class="btn full" id="go-premium">Freischalten</button></div>` : ""}`;
+    const doneEl = document.querySelector("#done");
+    if (doneEl) doneEl.onchange = e => {
       state.done = state.done || {}; state.done[dayKey] = e.target.checked;
       if (e.target.checked) { state.log = state.log || []; state.log.unshift({ at: Date.now(), text: t.title }); }
       save();
     };
+    const prem = document.querySelector("#go-premium");
+    if (prem) prem.onclick = () => { setPremium(true); paint(); };
   }
   function renderPlan() {
     const plan = Engine.planFor(dog());
-    document.querySelector("#p-plan").innerHTML = `<div class="card"><h2>Woche</h2><p class="muted">Ein Thema pro Tag. Nicht alles auf einmal.</p>${plan.map(p => `<div class="logitem"><strong>${p.day} · ${escape(p.goal)}</strong><p>${escape(p.title)} — ${escape(p.text)}</p></div>`).join("")}</div>`;
+    const visible = isPremium() ? plan : plan.slice(0, 3);
+    document.querySelector("#p-plan").innerHTML = `<div class="card"><h2>Woche</h2><p class="muted">Ein Thema pro Tag. Nicht alles auf einmal.</p>${visible.map(p => `<div class="logitem"><strong>${p.day} · ${escape(p.goal)}</strong><p>${escape(p.title)} — ${escape(p.text)}</p></div>`).join("")}${!isPremium() && plan.length > 3 ? `<p class="muted" style="margin-top:10px">+ ${plan.length - 3} weitere Tage mit Premium.</p><button class="btn ghost full" id="plan-prem" style="margin-top:8px">Premium freischalten</button>` : ""}</div>`;
+    const pp = document.querySelector("#plan-prem");
+    if (pp) pp.onclick = () => { setPremium(true); paint(); };
   }
   function renderGuide() {
-    document.querySelector("#p-guide").innerHTML = `<div class="card"><h2>Methoden</h2><p><strong>Ein Signal.</strong> Wiederholen ist betteln.</p><p><strong>Marker zuerst.</strong> Dann Futter. Nicht umgekehrt.</p><p><strong>Ende bevor es kippt.</strong> Gute Sessions sind kurz.</p></div><div class="card"><h3>Wald</h3><p>Schleppleine bis der Rückruf eine sichere Wette ist. Wild ist kein Trainingshelfer.</p></div><div class="card"><h3>Leine</h3><p>Zug beantwortet die Umwelt nicht. Stehenbleiben ist die Antwort.</p></div>`;
+    const videos = [
+      { t: "Marker & Futter", d: "Warum der Marker vor dem Leckerli kommt." },
+      { t: "Rückruf mit Schleppleine", d: "Abstand klein, Belohnung groß." },
+      { t: "Leine ohne Zug", d: "Richtungswechsel statt Ziehen." }
+    ];
+    document.querySelector("#p-guide").innerHTML = `<div class="card"><h2>Methoden</h2><p><strong>Ein Signal.</strong> Wiederholen ist betteln.</p><p><strong>Marker zuerst.</strong> Dann Futter. Nicht umgekehrt.</p><p><strong>Ende bevor es kippt.</strong> Gute Sessions sind kurz.</p></div><div class="card"><h3>Wald</h3><p>Schleppleine bis der Rückruf eine sichere Wette ist. Wild ist kein Trainingshelfer.</p></div><div class="card"><h3>Leine</h3><p>Zug beantwortet die Umwelt nicht. Stehenbleiben ist die Antwort.</p></div><div class="card"><h3>Video-Lektionen</h3>${isPremium() ? videos.map(v => `<div class="logitem"><strong>${escape(v.t)}</strong><p class="muted">${escape(v.d)}</p></div>`).join("") : `<p class="muted">Mit Premium: ${videos.length} kurze Lektionen.</p><button class="btn ghost full" id="guide-prem">Freischalten</button>`}</div>`;
+    const gp = document.querySelector("#guide-prem");
+    if (gp) gp.onclick = () => { setPremium(true); paint(); };
   }
   function renderAgent() {
     const chat = state.chat || [];
-    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">Lokaler Trainer. Sucht bei Bedarf in Wikipedia.</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}">${escape(c.t)}</div>`).join("")}</div><label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button></div>`;
+    const locked = !isPremium() && chat.length >= 6;
+    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">${isPremium() ? "Echter Trainer-Chat." : "Kostenlos: ein paar Fragen. Premium: unbegrenzt."}</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}">${escape(c.t)}</div>`).join("")}</div>${locked ? `<p class="muted">Premium für unbegrenzten Chat.</p><button class="btn full" id="chat-prem">Freischalten</button>` : `<label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button>`}</div>`;
     const box = document.querySelector("#clog"); if (box) box.scrollTop = box.scrollHeight;
+    const cp = document.querySelector("#chat-prem");
+    if (cp) cp.onclick = () => { setPremium(true); paint(); };
     const askBtn = document.querySelector("#ask");
+    if (!askBtn) return;
     askBtn.onclick = async () => {
       const q = document.querySelector("#q").value.trim(); if (!q) return;
       state.chat = state.chat || [];
