@@ -63,7 +63,7 @@
   }
   function renderAgent() {
     const chat = state.chat || [];
-    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">Lokaler Trainer. Antwortet aus der Wissensdatenbank.</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}">${escape(c.t)}</div>`).join("")}</div><label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button></div>`;
+    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">Lokaler Trainer. Antwortet aus der Wissensdatenbank.</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}>${escape(c.t)}</div>`).join("")}</div><label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button></div>`;
     const box = document.querySelector("#clog"); if (box) box.scrollTop = box.scrollHeight;
     const askBtn = document.querySelector("#ask");
     askBtn.onclick = async () => {

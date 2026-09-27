@@ -59,7 +59,7 @@
     { k: /leine|zieht|zug|spaziergang/, a: "Zug belohnt den Hund, weil er vorankommt. Stehenbleiben bei Zug, weitergehen bei lockerer Leine. Kein Ziehen am Halsband – Geschirr. Richtungswechsel statt Ziehen." },
     { k: /nase|schnüffel(n|n)|suche|beschäftigung/, a: "Nasenarbeit ist geistige Arbeit und ermüdet mehr als ein Spaziergang. Futter verstecken, Suchspiele, Schnüffelteppich. 10 Minuten Nase = 30 Minuten Lauf." },
     { k: /ruhe|entspann(ung|en)|alleine|stress|angst/, a: "Hunde brauchen echte Ruhephasen, nicht nur Schlaf. Decke, ruhiger Ort, du sitzt dabei. Kein ständiges Kuscheln fordern – manche Hunde wollen Abstand." },
-    { k: /wasser|baden|schwimm(en|t)|see|meer/, a: "Nicht jeder Hund schwimmt gut. Kurze Eingewöhnung, nie reinzwingen. Nach dem Baden Ohren trocknen, besonders bei Hängeohren. Süßwasser ist schonender als Salzwasser." },
+    { k: /wasser|baden|schwimm(en|t)|see|meer/, a: "Nicht jeder Hund schwimmt gut. Kurze Eingewöhnung, nie reinzwingen. Nach dem Baden Ohren trocknen, besonders bei Hängeohren. Süßfwasser ist schonender als Salzwasser." },
     { k: /auto|fahrt|krank|\u00fcbelkeit|autositz/, a: "Langsam steigern: erst Motor an, dann kurze Fahrten, dann länger. Leckerli, frische Luft, nicht voll futtern vorher. Sicherheitsgeschirr oder Box." },
     { k: /zahn(e|pflege)|zahnstein|putzen|kau/, a: "Zahnpflege ab dem Welpenalter gewöhnen. Hundezahnbürste oder Fingerling, täglich. Kauartikel aus Hirschhorn oder Holz, keine zu harten Knochen. Zahnstein führt zu Entzündungen." },
     { k: /gewicht|\u00fcbergewicht|dünn|zu\s+dick/, a: "Rippen sollten tastbar sein, nicht sichtbar. Übergewicht verkürzt das Leben. Mehr Bewegung, weniger Leckerli, Futter um 10 bis 20 Prozent reduzieren. Tierarzt bei schnellem Gewichtsverlust." },
@@ -118,7 +118,7 @@
     const local = localAnswer(q, dog);
     if (local) return local;
     const n = dog && dog.name ? dog.name : "dein Hund";
-    return "Ich bin Moos, lokal, ohne Netz. Ich kenne Trainingsmethoden, Rassen und Notfälle aus meiner Wissensdatenbank – aber zu \"" + String(q).slice(0, 60) + "\" hab ich gerade nichts. Frag konkreter, z. B. \"Wie alt werden Hunde?\", \"Was ist ein Klicker?\" oder \"Was tun bei Hitzschlag?\"";
+    return "Ich bin Moos, lokal, ohne Netz. Ich kenne Trainingsmethoden, Rassen und Notfälle aus meiner Wissensdatenbank – aber zu \"" + String(q).slice(0, 60) + "\" hab ich gerade nichts. Frag konkreter, z. B. \"Wie alt werden Hunde?\", \"Was ist ein Klicker?\" oder \"Was tun bei Hitzschlag?\".";
   }
 
   w.Engine = { DAYS, GOALS, planFor, today, answer, breedById(id) { return (w.BREEDS || []).find(b => b.id === id) || w.BREEDS[0]; } };
