@@ -1,9 +1,10 @@
 (function () {
+  "use strict";
   const KEY = "waldhund-v1";
   const $ = (s, r) => (r || document).querySelector(s);
   const state = load();
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
-  function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { console.warn("Speichern fehlgeschlagen", e); } }
   function show(id) {
     document.querySelectorAll(".panel").forEach(p => p.classList.toggle("on", p.id === "p-" + id));
     document.querySelectorAll("nav.dock button").forEach(b => b.classList.toggle("on", b.dataset.p === id));
@@ -56,20 +57,32 @@
   }
   function renderAgent() {
     const chat = state.chat || [];
-    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">Lokaler Trainer. Kein Netz, kein Account.</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}">${escape(c.t)}</div>`).join("")}</div><label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button></div>`;
+    document.querySelector("#p-agent").innerHTML = `<div class="card"><div class="agent"><img src="assets/icon.svg" alt="Moos" /><div><h3>Moos</h3><p class="muted">Lokaler Trainer. Sucht bei Bedarf in Wikipedia.</p></div></div><div class="chatlog" id="clog">${chat.map(c => `<div class="bubble${c.me ? " me" : ""}">${escape(c.t)}</div>`).join("")}</div><label class="lab">Frage</label><textarea id="q" placeholder="Er zieht an der Leine, sobald es nach Wald riecht."></textarea><button class="btn full" id="ask" style="margin-top:10px">Fragen</button></div>`;
     const box = document.querySelector("#clog"); if (box) box.scrollTop = box.scrollHeight;
-    document.querySelector("#ask").onclick = () => {
+    const askBtn = document.querySelector("#ask");
+    askBtn.onclick = async () => {
       const q = document.querySelector("#q").value.trim(); if (!q) return;
       state.chat = state.chat || [];
       state.chat.push({ me: true, t: q });
-      state.chat.push({ me: false, t: Engine.answer(q, dog()) });
+      state.chat.push({ me: false, t: "…" });
       if (state.chat.length > 40) state.chat = state.chat.slice(-40);
       save(); renderAgent();
+      const typing = document.querySelector("#clog .bubble:last-child");
+      try {
+        const ans = await Engine.answer(q, dog());
+        typing.textContent = ans;
+      } catch (e) {
+        typing.textContent = "Da hat was gehakt. Versuch's nochmal.";
+      }
+      save();
     };
+    document.querySelector("#q").addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); askBtn.click(); }
+    });
   }
   function renderMehr() {
     const d = dog(); const log = state.log || [];
-    document.querySelector("#p-mehr").innerHTML = `<div class="card"><div class="dogline"><img class="avatar" src="assets/icon.svg" alt="" /><div><h3>${escape(d.name)}</h3><p class="muted">${escape(Engine.breedById(d.breed).name)}</p></div></div><button class="btn ghost full" id="reset" style="margin-top:12px">Profil zurücksetzen</button></div><div class="card"><h3>Tagebuch</h3>${log.length ? log.slice(0, 12).map(x => `<div class="logitem">${new Date(x.at).toLocaleDateString("de-DE")} · ${escape(x.text)}</div>`).join("") : "<p class=\"muted\">Noch leer.</p>"}</div><div class="card"><p><a href="datenschutz.html">Datenschutz</a></p></div>`;
+    document.querySelector("#p-mehr").innerHTML = `<div class="card"><div class="dogline"><img class="avatar" src="assets/icon.svg" alt="" /><div><h3>${escape(d.name)}</h3><p class="muted">${escape(Engine.breedById(d.breed).name)}</p></div></div><button class="btn ghost full" id="reset" style="margin-top:12px">Profil zurücksetzen</button></div><div class="card"><h3>Tagebuch</h3>${log.length ? log.slice(0, 12).map(x => `<div class="logitem">${new Date(x.at).toLocaleDateString("de-DE")} · ${escape(x.text)}</div>`).join("") : "<p class=\"muted\">Noch leer.</p>"}</div><div class="card"><p><a href="datenschutz.html">Datenschutz</a> · <a href="impressum.html">Impressum</a></p></div>`;
     document.querySelector("#reset").onclick = () => {
       if (!confirm("Lokal alles löschen?")) return;
       localStorage.removeItem(KEY); location.reload();
@@ -82,7 +95,12 @@
     paint(); show("heute");
   }
   document.querySelectorAll("nav.dock button").forEach(b => b.addEventListener("click", () => show(b.dataset.p)));
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!sessionStorage.getItem("wh-reloaded")) { sessionStorage.setItem("wh-reloaded", "1"); location.reload(); }
+    });
+  }
   setTimeout(() => {
     document.querySelector("#splash").classList.add("go");
     if (state.dog && state.dog.name) boot();
