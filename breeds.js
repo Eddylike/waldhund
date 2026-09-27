@@ -1,0 +1,20 @@
+window.BREEDS = [
+  { id: "mischling", name: "Mischling", energy: 3, drive: 3, note: "Beobachte den einzelnen Hund, nicht die Mischung." },
+  { id: "labrador", name: "Labrador Retriever", energy: 4, drive: 3, note: "Arbeitet gern mit der Nase und für Futter. Kurze, klare Sessions." },
+  { id: "golden", name: "Golden Retriever", energy: 3, drive: 3, note: "Sozial, lernwillig. Pausen einplanen." },
+  { id: "schaefer", name: "Deutscher Schäferhund", energy: 5, drive: 5, note: "Eine klare Arbeit pro Tag." },
+  { id: "border", name: "Border Collie", energy: 5, drive: 5, note: "Geistige Arbeit vor Kilometern." },
+  { id: "malinois", name: "Malinois", energy: 5, drive: 5, note: "Kurze Einheiten, hartes Ende." },
+  { id: "aussie", name: "Australian Shepherd", energy: 5, drive: 4, note: "Hütetrieb umleiten: Suchspiele, Target." },
+  { id: "husky", name: "Siberian Husky", energy: 5, drive: 2, note: "Auslastung über Tempo und Nase." },
+  { id: "akita", name: "Akita", energy: 3, drive: 2, note: "Wenige Wiederholungen, hohe Qualität." },
+  { id: "dackel", name: "Dackel", energy: 3, drive: 4, note: "Spur und Buddeln kanalisieren." },
+  { id: "jack", name: "Jack Russell", energy: 5, drive: 4, note: "Kurze Impulse, oft." },
+  { id: "beagle", name: "Beagle", energy: 4, drive: 4, note: "Suchaufgaben vor Rückruf-Drill." },
+  { id: "boxer", name: "Boxer", energy: 4, drive: 3, note: "Spielerisch bleiben." },
+  { id: "pudel", name: "Pudel", energy: 3, drive: 3, note: "Variation halten." },
+  { id: "chihuahua", name: "Chihuahua", energy: 2, drive: 2, note: "Gleiche Regeln, kleinere Schritte." },
+  { id: "berner", name: "Berner Sennenhund", energy: 2, drive: 2, note: "Gelenke und Hitze schonen." },
+  { id: "rottweiler", name: "Rottweiler", energy: 4, drive: 4, note: "Bindung vor Sport." },
+  { id: "whippet", name: "Whippet", energy: 3, drive: 2, note: "Sprint ja, Dauerlauf nein." }
+];
