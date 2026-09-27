@@ -12,8 +12,8 @@ PWA: Brave/Chrome → Seite als App installieren.
 
 Repo → Settings → Pages → Source: **GitHub Actions**.
 
-## Rechtliches (Geld-Modus)
+## Rechtliches
 
 - Impressum mit echtem Namen, Adresse, Kontakt – Anbieter Eddy erkennbar.
-- Datenschutz aktualisiert für Premium-Funktionen.
-- Freemium: Kern kostenlos, Premium hinter Paywall.
+- Datenschutz: nur lokale Speicherung, keine Konten, keine Analyse.
+- Alle Funktionen sind frei nutzbar, keine Paywall.
