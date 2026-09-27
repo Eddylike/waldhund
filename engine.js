@@ -48,10 +48,10 @@
     { k: /leine|zieht|zug|spaziergang/, a: "Zug belohnt den Hund, weil er vorankommt. Stehenbleiben bei Zug, weitergehen bei lockerer Leine. Kein Ziehen am Halsband – Geschirr. Richtungswechsel statt Ziehen." },
     { k: /nase|schnüffel(n|n)|suche|beschäftigung/, a: "Nasenarbeit ist geistige Arbeit und ermüdet mehr als ein Spaziergang. Futter verstecken, Suchspiele, Schnüffelteppich. 10 Minuten Nase = 30 Minuten Lauf." },
     { k: /ruhe|entspann(ung|en)|alleine|stress|angst/, a: "Hunde brauchen echte Ruhephasen, nicht nur Schlaf. Decke, ruhiger Ort, du sitzt dabei. Kein ständiges Kuscheln fordern – manche Hunde wollen Abstand." },
-    { k: /wasser|baden|schwimm(en|t)|see|meer/, a: "Nicht jeder Hund schwimmt gut. Kurze Eingewöhnung, nie reinzwingen. Nach dem Baden Ohren trocknen, besonders bei Hängeohren. Süßwasser ist schonender als Salzwasser." },
-    { k: /auto|fahrt|krank|übelkeit|autositz/, a: "Langsam steigern: erst Motor an, dann kurze Fahrten, dann länger. Leckerli, frische Luft, nicht voll futtern vorher. Sicherheitsgeschirr oder Box." },
+    { k: /wasser|baden|schwimm(en|t)|see|meer/, a: "Nicht jeder Hund schwimmt gut. Kurze Eingewöhnung, nie reinzwingen. Nach dem Baden Ohren trocknen, besonders bei Hängeohren. Süßfwasser ist schonender als Salzwasser." },
+    { k: /auto|fahrt|krank|\u00fcbelkeit|autositz/, a: "Langsam steigern: erst Motor an, dann kurze Fahrten, dann länger. Leckerli, frische Luft, nicht voll futtern vorher. Sicherheitsgeschirr oder Box." },
     { k: /zahn(e|pflege)|zahnstein|putzen|kau/, a: "Zahnpflege ab dem Welpenalter gewöhnen. Hundezahnbürste oder Fingerling, täglich. Kauartikel aus Hirschhorn oder Holz, keine zu harten Knochen. Zahnstein führt zu Entzündungen." },
-    { k: /gewicht|übergewicht|dünn|zu\s+dick/, a: "Rippen sollten tastbar sein, nicht sichtbar. Übergewicht verkürzt das Leben. Mehr Bewegung, weniger Leckerli, Futter um 10 bis 20 Prozent reduzieren. Tierarzt bei schnellem Gewichtsverlust." },
+    { k: /gewicht|\u00fcbergewicht|dünn|zu\s+dick/, a: "Rippen sollten tastbar sein, nicht sichtbar. Übergewicht verkürzt das Leben. Mehr Bewegung, weniger Leckerli, Futter um 10 bis 20 Prozent reduzieren. Tierarzt bei schnellem Gewichtsverlust." },
     { k: /hygiene|baden|bürsten|fell|pflege/, a: "Die meisten Hunde brauchen kein häufiges Baden – das entfettet das Fell. Bürsten je nach Felltyp wöchentlich bis täglich. Ohren, Krallen, Zähne regelmäßig checken." },
     { k: /krankheit|symptom|husten|erbrechen|durchfall|lahm|appetitlos/, a: "Tierarzt aufsuchen bei: anhaltendem Erbrechen oder Durchfall, Lethargie, Appetitlosigkeit über 24 Stunden, Husten, Lahmheit, Schwellungen. Besser einmal zu viel als zu wenig." },
     { k: /spiel(en|zeug)| apport| apportieren|ball|frisbee/, a: "Spiel ist Training und Bindung. Apportieren für Retriever, Suchen für Jagdhunde. Nicht stundenlang – kurze, intensive Sessions. Immer mit klarem Ende." },
@@ -90,16 +90,22 @@
     return null;
   }
 
+  function clean(s) {
+    return String(s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  }
+
   async function webSearch(q) {
     const query = encodeURIComponent(q);
+    // 1) Wikipedia REST summary — CORS-frei, liefert Intro-Text direkt
     try {
-      const r = await fetch("https://api.duckduckgo.com/?q=" + query + "&format=json&no_html=1&skip_disambig=1", { mode: "cors" });
+      const r = await fetch("https://de.wikipedia.org/api/rest_v1/page/summary/" + query, { mode: "cors" });
       if (r.ok) {
         const d = await r.json();
-        const txt = d.Answer || d.AbstractText || (d.RelatedTopics && d.RelatedTopics[0] && d.RelatedTopics[0].Text);
-        if (txt) return String(txt).slice(0, 500);
+        if (d && d.extract) return clean(d.extract).slice(0, 500) + " (Quelle: Wikipedia)";
+        if (d && d.description) return clean(d.description) + " (Quelle: Wikipedia)";
       }
     } catch (e) {}
+    // 2) Wikipedia Action API search + extract — braucht origin=*
     try {
       const r = await fetch("https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + query + "&srlimit=1&format=json&origin=*", { mode: "cors" });
       if (r.ok) {
@@ -111,18 +117,19 @@
             const ed = await ex.json();
             const pages = ed.query && ed.query.pages;
             const p = pages && pages[Object.keys(pages)[0]];
-            if (p && p.extract) return p.extract.slice(0, 500) + " (Quelle: Wikipedia)";
+            if (p && p.extract) return clean(p.extract).slice(0, 500) + " (Quelle: Wikipedia)";
           }
-          return "Wikipedia: " + hit.title + " – " + (hit.snippet || "").replace(/<[^>]+>/g, "") + " …";
+          return "Wikipedia: " + hit.title + " – " + clean(hit.snippet).slice(0, 400);
         }
       }
     } catch (e) {}
+    // 3) Englische Wikipedia als letzter Ausweg
     try {
       const r = await fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + query + "&srlimit=1&format=json&origin=*", { mode: "cors" });
       if (r.ok) {
         const d = await r.json();
         const hit = d.query && d.query.search && d.query.search[0];
-        if (hit) return "Wikipedia (EN): " + hit.title + " – " + (hit.snippet || "").replace(/<[^>]+>/g, "").slice(0, 400);
+        if (hit) return "Wikipedia (EN): " + hit.title + " – " + clean(hit.snippet).slice(0, 400);
       }
     } catch (e) {}
     return null;
